@@ -5,8 +5,6 @@ dependencies:
   # Required for full project functionality (dont remove)
   - pytest
   # Examples (remove and add as needed)
-  - jupyter
-  - jupyterlab
   - xarray
   - numpy
   - scipy
@@ -14,3 +12,6 @@ dependencies:
   - netcdf4
   - pandas
   - matplotlib
+
+  - ipykernels
+  - nb_conda_kernels
