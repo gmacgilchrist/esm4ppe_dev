@@ -4,6 +4,7 @@ import gfdl_utils as gu
 from information import *
 import os
 import cftime
+import re
 
 def get_pp(getmember=False,startyear=None,startmonth=None,member=None):
     '''Get post process directory for either control run (default), or a specific member.'''
@@ -15,7 +16,7 @@ def get_pp(getmember=False,startyear=None,startmonth=None,member=None):
         config_id = ppeDict['config_id_control']
     return '/'.join([ppeDict['rootdir'],config_id,ppeDict['prod'],'pp'])
 
-def get_pathDict_from_pp_variable_frequency(pp,variable,frequency,time='*',out='ts'):
+def get_pathDict_from_pp_variable_frequency(pp,variable,frequency,time='*',out='ts',constraint=None):
     '''
     Provided a pp path, an accurate variable name, and a specified frequency, return
     the desired entries to the pathDict dictionary for use in core.open_frompp.
@@ -39,24 +40,34 @@ def get_pathDict_from_pp_variable_frequency(pp,variable,frequency,time='*',out='
     # Get correct ppname based on output frequency
     for ppname in gu.core.find_variable(pathDict['pp'],pathDict['add']):
         timefrequency = gu.core.get_timefrequency(pathDict['pp'],ppname)
-        if timefrequency == frequency:
-            pathDict['ppname'] = ppname
+        if constraint is None:
+            # Find first with specified time frequency
+            if timefrequency == frequency:
+                pathDict['ppname'] = ppname
+                break
+        else:
+            if (bool(re.search(constraint,ppname))) & (timefrequency == frequency):
+                pathDict['ppname'] = ppname
+                break
+    if 'ppname' not in pathDict.keys():
+        print(variable+' not found for a ppname that satisfies constraint and frequency. Returning pathDict so far.')
+        return pathDict
     # Get local file structure
     pathDict['local'] = gu.core.get_local(pathDict['pp'],pathDict['ppname'],pathDict['out'])
     return pathDict
 
-def get_pathDict_control(variable, frequency):
+def get_pathDict_control(variable, frequency, constraint=None):
     '''
     Get pathDict for [variable] at [frequency] for control simulation.
     '''
-    return get_pathDict_from_pp_variable_frequency(get_pp(),variable,frequency)
+    return get_pathDict_from_pp_variable_frequency(get_pp(),variable,frequency,constraint=constraint)
 
-def get_pathDict_member(variable,frequency,startyear,startmonth,member):
+def get_pathDict_member(variable,frequency,startyear,startmonth,member, constraint=None):
     '''
     Get pathDict for [variable] at [frequency] for [startyear][member] simulation.
     '''
     pp=get_pp(getmember=True,startyear=startyear,startmonth=startmonth,member=member)
-    return get_pathDict_from_pp_variable_frequency(pp,variable,frequency)
+    return get_pathDict_from_pp_variable_frequency(pp,variable,frequency,constraint=constraint)
     
 def open_control(variable,frequency):
     '''
@@ -107,11 +118,11 @@ def preprocess_climpred(ds,leadunits='months'):
 
 def get_allvars_ensemble(frequency):
     '''Return a list of all of the variables available for the ensembles with monthly frequency'''
-    ppmember=get_pp(getmember=True,startyear=123,startmonth=1,member=1)
+    ppmember=get_pp(getmember=True,startyear=381,startmonth=1,member=1)
     vardict = gu.core.get_allvars(ppmember)
     variables = []
-    for key in vardict:
-        timefrequency = gu.core.get_timefrequency(ppcontrol,key)
+    for key in vardict.keys():
+        timefrequency = gu.core.get_timefrequency(ppmember,key)
         if timefrequency==frequency:
             for variable in vardict[key]:
                 variables.append(variable)

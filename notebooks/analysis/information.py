@@ -1,19 +1,29 @@
 import numpy as np
 import re
+import socket
 
 global ppeDict
 global ppcontrol
 
 ppeDict = {
-    'rootdir':'/projects/SOCCOM/datasets/ESM4_PPE/archive/Richard.Slater/xanadu_esm4_20190304_mom6_ESM4_v1.0.3_rc1',
     'config_id_control':'ESM4_piControl_D',
     'prod':'gfdl.ncrc4-intel18-prod-openmp',
     'startyears': np.array([123,161,185,208,230,269,300,326,359,381]),
     'startmonths': np.array([1,4,7,10]),
-    'datasavedir':'/projects/SOCCOM/graemem/projects/esm4_ppe/data',
-    'figsavedir':'/home/graemem/projects/esm4_ppe/figures',
     'gridfile':'/GRID/ocean.static.nc'
     }
+
+### Machine-specific items
+hostname = socket.gethostname()
+if re.search('della',socket.gethostname()):
+    ppeDict['rootdir']='/projects/SOCCOM/datasets/ESM4_PPE/archive/Richard.Slater/xanadu_esm4_20190304_mom6_ESM4_v1.0.3_rc1'
+    ppeDict['datasavedir']='/projects/SOCCOM/graemem/projects/esm4_ppe/data'
+    ppeDict['figsavedir']='/home/graemem/projects/esm4_ppe/figures'
+elif re.search('an',socket.gethostname()):
+    ppeDict['rootdir']='/archive/Richard.Slater/xanadu_esm4_20190304_mom6_ESM4_v1.0.3_rc1'
+    ppeDict['datasavedir']='/work/gam/projects/esm4_ppe/data'
+    ppeDict['figsavedir']='/home/gam/projects/esm4_ppe/figures'
+    ppeDict['griddirtmp']='/work/gam/projects/esm4_ppe/data'    
 
 ppcontrol = '/'.join([ppeDict['rootdir'],ppeDict['config_id_control'],ppeDict['prod'],'pp'])
 
