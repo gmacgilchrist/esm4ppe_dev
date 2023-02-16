@@ -3,6 +3,7 @@ import numpy as np
 import gfdl_utils as gu
 from information import *
 import os
+import cftime
 
 def get_pp(getmember=False,startyear=None,startmonth=None,member=None):
     '''Get post process directory for either control run (default), or a specific member.'''
@@ -93,3 +94,25 @@ def open_ensemble(variable,frequency,startyear,startmonth,control=None,verbose=F
         dd[0] = control.sel(time=dd[1]['time'])
     return xr.concat(dd,dim='member').assign_coords({'member':np.arange(nm)})
 
+def preprocess_climpred(ds,leadunits='months'):
+    '''Make necessary adjustments to dataset for use with climpred package.'''
+    nt = len(ds['time'])
+    init = cftime.DatetimeNoLeap(ds['time.year'][0],ds['time.month'][0],1)
+    
+    ds = ds.rename({'time':'lead'}).assign_coords({'lead':np.arange(1,nt+1,1)})
+    ds['lead'].attrs['units']=leadunits
+    ds = ds.expand_dims({'init':[init]})
+    ds = ds.chunk({'member':-1,'lead':-1})
+    return ds
+
+def get_allvars_ensemble(frequency):
+    '''Return a list of all of the variables available for the ensembles with monthly frequency'''
+    ppmember=get_pp(getmember=True,startyear=123,startmonth=1,member=1)
+    vardict = gu.core.get_allvars(ppmember)
+    variables = []
+    for key in vardict:
+        timefrequency = gu.core.get_timefrequency(ppcontrol,key)
+        if timefrequency==frequency:
+            for variable in vardict[key]:
+                variables.append(variable)
+    return variables

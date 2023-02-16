@@ -6,14 +6,13 @@ from information import *
 from processing import *
 from variance import *
 
-# Use directory for first ensemble to get names of variables
-ppmember=get_pp(getmember=True,startyear=123,startmonth=1,member=1)
-
 frequency='monthly'
-vardict = gu.core.get_allvars(ppmember)
-for key in vardict:
-    timefrequency = gu.core.get_timefrequency(ppcontrol,key)
-    if timefrequency==frequency:
-        for variable in vardict[key]:
-            print('Calculating and saving variance for : '+variable)
-            calc_ppp(variable,'monthly',save=True, saveensemble=False, savecontrol=True, verbose=True)
+# List of variables. If None, calculates for all available variables.
+variables = ['intpp','tos','sos','phos','chlos','chlos']
+
+if variables is None:
+    variables = get_allvars_ensemble(frequency)
+
+for variable in variables:
+    print('Calculating and saving ppp for : '+variable)
+    calc_ppp(variable,'monthly',save=True, saveensemble=False, savecontrol=True, verbose=True)

@@ -63,7 +63,7 @@ def calc_evar(variable,frequency,startyear,startmonth,control,save=False,verbose
                 evar.to_zarr(outdir+'/'+outfile,mode='a')
     return evar
 
-def calc_evarmean(variable,frequency,save=False,saveeach=False,verbose=False):
+def calc_evarmean(variable,frequency,startmonth=1,save=False,saveeach=False,verbose=False):
     ''' Load or calculate variance for each ensemble, and calculate mean variance.'''
     
     evarpath = find_variance(variable,frequency,'ensemble')
@@ -79,7 +79,7 @@ def calc_evarmean(variable,frequency,save=False,saveeach=False,verbose=False):
         for i,startyear in enumerate(ppeDict['startyears']):
             if verbose:
                 print('Start year '+str(startyear))
-            evar = calc_evar(variable,frequency,startyear=startyear,startmonth=1,control=control,save=saveeach,verbose=verbose)
+            evar = calc_evar(variable,frequency,startyear=startyear,startmonth=startmonth,control=control,save=saveeach,verbose=verbose)
             if i==0:
                 timenew = np.arange(len(evar['time']))
             dd[i]=evar.assign_coords({'time':timenew})

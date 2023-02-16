@@ -4,9 +4,10 @@ import xarray as xr
 from shapely.geometry import Point
 import numpy as np
 
-rootdir = '/projects/SOCCOM/datasets/LargeMarineEcos/LME66/'
+rootdir = '/projects/SOCCOM/datasets/LargeMarineEcos
+localdir = '/LME66'
 filename = 'LMEs66.shp'
-df = gpd.read_file(rootdir+filename)
+df = gpd.read_file(rootdir+localdir+'/'+filename)
 grid = xr.open_dataset(ppeDict['rootdir']+ppeDict['gridfile'])
 # Reorganize geolon coordinate
 grid['geolon'] = grid['geolon'].where(grid['geolon']>-180,grid['geolon']+360)
@@ -18,7 +19,7 @@ xy_arr = np.vstack((gridx.ravel(), gridy.ravel())).T
 inside_dict = {}
 for index,row in df.iterrows():
     name = row['LME_NAME']
-    inside_dict[name]=np.zeros(shape = len(xy_arr))
+    inside_dict[name]=np.full(shape = len(xy_arr),False)
 # Populate np arrays with boolean based on whether point in polygon
 for i,xy in enumerate(xy_arr):
     if i%100==0:
@@ -31,4 +32,4 @@ for name,inside in inside_dict.items():
     da=xr.DataArray(inside.reshape(gridx.shape).T,dims=ds.dims,coords=ds.coords)
     ds[name]=da
     
-ds.to_netcdf(ppeDict['datasavedir']+'raw/LME66.ESM4.nc')
+ds.to_netcdf(rootdir+'derived_masks/LME66.ESM4.nc')

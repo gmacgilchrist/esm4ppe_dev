@@ -9,6 +9,7 @@ ppeDict = {
     'config_id_control':'ESM4_piControl_D',
     'prod':'gfdl.ncrc4-intel18-prod-openmp',
     'startyears': np.array([123,161,185,208,230,269,300,326,359,381]),
+    'startmonths': np.array([1,4,7,10]),
     'datasavedir':'/projects/SOCCOM/graemem/projects/esm4_ppe/data',
     'figsavedir':'/home/graemem/projects/esm4_ppe/figures',
     'gridfile':'/GRID/ocean.static.nc'
@@ -69,8 +70,14 @@ def generate_masks(grid):
         bs = list(filter(r.match, list(masks.keys())))
         for b in bs:
             masks[name+'_global']+=masks[b].copy()
-    
-    return masks
+            
+    # Now remove any empty masks
+    masksnow = masks.copy()
+    for name, mask in masks.items():
+        if ~mask.any():
+            masksnow.pop(name)
+            
+    return masksnow
 
 def get_masknames(masks):
     '''
