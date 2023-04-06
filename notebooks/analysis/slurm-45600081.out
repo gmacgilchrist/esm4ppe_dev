@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/home/graemem/projects/esm4_ppe/notebooks/analysis/calc_regionalmeans_allvars.py", line 56, in <module>
-    print('Calculating and saving regional means for : '+variable)
-NameError: name 'variable' is not defined. Did you mean: 'variables'?

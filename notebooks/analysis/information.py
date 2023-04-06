@@ -1,16 +1,19 @@
 import numpy as np
 import re
 import socket
+import cftime
 
 global ppeDict
 global ppcontrol
+global LMEorderK20
+global ppp_threshold
 
 ppeDict = {
     'config_id_control':'ESM4_piControl_D',
     'prod':'gfdl.ncrc4-intel18-prod-openmp',
     'startyears': np.array([123,161,185,208,230,269,300,326,359,381]),
     'startmonths': np.array([1,4,7,10]),
-    'gridfile':'/GRID/ocean.static.nc'
+    'gridfile':'/GRID/ocean.static.nc',
     }
 
 ### Machine-specific items
@@ -19,11 +22,16 @@ if re.search('della',socket.gethostname()):
     ppeDict['rootdir']='/projects/SOCCOM/datasets/ESM4_PPE/archive/Richard.Slater/xanadu_esm4_20190304_mom6_ESM4_v1.0.3_rc1'
     ppeDict['datasavedir']='/projects/SOCCOM/graemem/projects/esm4_ppe/data'
     ppeDict['figsavedir']='/home/graemem/projects/esm4_ppe/figures'
-elif re.search('an',socket.gethostname()):
+    ppeDict['pathLMEmask']='/projects/SOCCOM/datasets/LargeMarineEcos/derived_masks/LME66.ESM4.nc'
+elif (re.search('an',socket.gethostname())) or (re.search('pp',socket.gethostname())):
     ppeDict['rootdir']='/archive/Richard.Slater/xanadu_esm4_20190304_mom6_ESM4_v1.0.3_rc1'
     ppeDict['datasavedir']='/work/gam/projects/esm4_ppe/data'
     ppeDict['figsavedir']='/home/gam/projects/esm4_ppe/figures'
-    ppeDict['griddirtmp']='/work/gam/projects/esm4_ppe/data'    
+    ppeDict['pathLMEmask']='/work/gam/LargeMarineEcos/derived_masks/LME66.ESM4.nc'
+    ### TEMPORARY
+    ppeDict['griddirtmp']='/work/gam/projects/esm4_ppe/data'   
+    
+ppeDict['rootdir_annual']=ppeDict['datasavedir']+'/raw/annualmeans'
 
 ppcontrol = '/'.join([ppeDict['rootdir'],ppeDict['config_id_control'],ppeDict['prod'],'pp'])
 
@@ -99,4 +107,102 @@ def get_masknames(masks):
         if mask.any():
             names.append(name)
     return names
-    
+
+def get_timeslice(startyear,startmonth):
+    if startmonth in [4,7,10]:
+        endyear = startyear+3
+        endmonth = startmonth-1
+    else:
+        endyear = startyear+9
+        endmonth = 12
+    starttime = cftime.DatetimeNoLeap(startyear,startmonth,1)
+    try:
+        endtime = cftime.DatetimeNoLeap(endyear,endmonth,31)
+    except:
+        endtime = cftime.DatetimeNoLeap(endyear,endmonth,30)
+    return slice(starttime,endtime)
+
+### Ordering of LME systems from Krumhardt et al 2020, Figure 6
+LMEorderK20 = ['California Current',
+                'Gulf of California',
+                'Gulf of Mexico',
+                'Southeast U.S. Continental Shelf',
+                'Insular Pacific-Hawaiian',
+                'Pacific Central-American Coastal',
+                'Caribbean Sea',
+                'South Brazil Shelf',
+                'East Brazil Shelf',
+                'North Brazil Shelf',
+                'Mediterranean Sea',
+                'Canary Current',
+                'Guinea Current',
+                'Benguela Current',
+                'Agulhas Current',
+                'Somali Coastal Current',
+                'Arabian Sea',
+                'Bay of Bengal',
+                'Gulf of Thailand',
+                'South China Sea',
+                'Sulu-Celebes Sea',
+                'Indonesian Sea',
+                'North Australian Shelf',
+                'Northeast Australian Shelf',
+                'East Central Australian Shelf',
+                'South West Australian Shelf',
+                'West Central Australian Shelf',
+                'Northwest Australian Shelf',
+                'East China Sea',
+                'Kuroshio Current',
+                'Gulf of Alaska',
+                'Southeast Australian Shelf',
+                'New Zealand Shelf',
+                'Sea of Japan',
+                'Oyashio Current',
+                'Sea of Okhotsk',
+                'West Bering Sea',
+                'Antarctica',
+                'Aleutian Islands',
+                'Greenland Sea',
+                'Yellow Sea',
+                'Northern Bering - Chukchi Seas',
+                'Beaufort Sea',
+                'East Siberian Sea',
+                'Laptev Sea',
+                'Kara Sea',
+                'Iceland Shelf and Sea',
+                'Hudson Bay Complex',
+                'Central Arctic',
+                'Canadian High Arctic - North Greenland',
+                'East Bering Sea',
+                'Patagonian Shelf',
+                'Norwegian Sea',
+                'North Sea',
+                'Celtic-Biscay Shelf',
+                'Faroe Plateau',
+                'Northeast U.S. Continental Shelf',
+                'Scotian Shelf',
+                'Labrador - Newfoundland',
+                'Humboldt Current',
+                'Canadian Eastern Arctic - West Greenland',
+                'Barents Sea',
+                'Iberian Coastal']
+
+LMEArctic = ['Gulf of Alaska',
+            'Aleutian Islands',
+            'East Bering Sea',
+            'West Bering Sea',
+            'Northern Bering - Chukchi Seas',
+            'East Siberian Sea',
+            'Laptev Sea',
+            'Kara Sea',
+            'Barents Sea',
+            'Norwegian Sea',
+            'Greenland Sea',
+            'Iceland Shelf and Sea',
+            'Canadian Eastern Arctic - West Greenland',
+            'Hudson Bay Complex',
+            'Canadian High Arctic - North Greenland',
+            'Beaufort Sea',
+            'Central Arctic']
+
+ppp_threshold = 0.235559205

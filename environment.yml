@@ -12,6 +12,7 @@ dependencies:
   - netcdf4
   - pandas
   - matplotlib
+  - climpred
 
   - ipykernels
   - nb_conda_kernels
