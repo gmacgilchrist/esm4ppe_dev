@@ -1,0 +1,21 @@
+name: predict_noclimpred
+channels:
+  - conda-forge
+dependencies:
+  # Required for full project functionality (dont remove)
+  - pytest
+  # Examples (remove and add as needed)
+  - xarray
+  - numpy
+  - scipy
+  - dask
+  - netcdf4
+  - pandas
+  - matplotlib
+  - geopandas
+  - zarr
+  - cartopy
+  - nc-time-axis
+  - xhistogram
+
+  - ipykernel

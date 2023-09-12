@@ -26,7 +26,7 @@ if re.search('della',socket.gethostname()):
 elif (re.search('an',socket.gethostname())) or (re.search('pp',socket.gethostname())):
     ppeDict['rootdir']='/archive/Richard.Slater/xanadu_esm4_20190304_mom6_ESM4_v1.0.3_rc1'
     ppeDict['datasavedir']='/work/gam/projects/esm4_ppe/data'
-    ppeDict['figsavedir']='/home/gam/projects/esm4_ppe/figures'
+    ppeDict['figsavedir']='/home/gam/projects/esm4ppe_dev/figures'
     ppeDict['pathLMEmask']='/work/gam/LargeMarineEcos/derived_masks/LME66.ESM4.nc'
     ### TEMPORARY
     ppeDict['griddirtmp']='/work/gam/projects/esm4_ppe/data'   

@@ -1,0 +1,22 @@
+name: predict_py39_xesmf_numba_pint
+channels:
+  - conda-forge
+dependencies:
+  # Required for full project functionality (dont remove)
+  - pytest
+  # Examples (remove and add as needed)
+  - python=3.9
+  - xarray
+  - numpy
+  - scipy
+  - dask
+  - netcdf4
+  - pandas
+  - matplotlib
+  - climpred
+  - zarr
+  - xesmf
+  - numba
+  - pint
+
+  - ipykernel
